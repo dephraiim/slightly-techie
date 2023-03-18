@@ -19,6 +19,12 @@ const Home: NextPage = () => {
     },
   });
 
+  const deletePost = api.posts.delete.useMutation({
+    async onSuccess() {
+      await utils.posts.getPosts.invalidate();
+    },
+  });
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -112,8 +118,17 @@ const Home: NextPage = () => {
 
                         {post.author.id === sessionData?.user?.id && (
                           <div className="mt-4 flex gap-2">
-                            <p className="text-sm underline">Edit</p>
-                            <p className="text-sm underline">Delete</p>
+                            <p className="cursor-pointer text-sm underline ">
+                              Edit
+                            </p>
+                            <p
+                              className="cursor-pointer text-sm underline"
+                              onClick={async () => {
+                                await deletePost.mutateAsync({ id: post.id });
+                              }}
+                            >
+                              Delete
+                            </p>
                           </div>
                         )}
                       </div>

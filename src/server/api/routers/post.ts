@@ -21,7 +21,7 @@ export const postsRouter = createTRPCRouter({
   getPost: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid().optional(),
+        id: z.string().uuid(),
       })
     )
     .query(({ ctx, input }) => {
@@ -63,5 +63,21 @@ export const postsRouter = createTRPCRouter({
         ...result,
         author: user,
       };
+    }),
+
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.prisma.posts.delete({
+        where: {
+          id: input.id,
+        },
+      });
+
+      return result;
     }),
 });
