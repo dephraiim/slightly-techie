@@ -5,11 +5,12 @@ import { api } from "~/utils/api";
 import React from "react";
 
 const Home: NextPage = () => {
+  const { data: sessionData } = useSession();
+
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
 
   const utils = api.useContext();
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
   const posts = api.posts.getPosts.useQuery();
 
   const addPost = api.posts.createPost.useMutation({
@@ -49,53 +50,66 @@ const Home: NextPage = () => {
             Slightly Techie
           </h1>
           <div className="my-4">
-            <p className="text-2xl text-white">
-              {hello.data ? hello.data.greeting : "Loading tRPC query..."}
-            </p>
             <AuthShowcase />
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <label className="text-white" htmlFor="title">
-              Title:
-            </label>
-            <br />
-            <input
-              id="title"
-              name="title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              // disabled={addPost.isLoading}
-            />
+          {sessionData ? (
+            <form onSubmit={handleSubmit}>
+              <label className="text-white" htmlFor="title">
+                Title:
+              </label>
+              <br />
+              <input
+                id="title"
+                name="title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                disabled={addPost.isLoading}
+              />
 
-            <br />
-            <label className="text-white" htmlFor="text">
-              Content:
-            </label>
-            <br />
-            <textarea
-              id="content"
-              name="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              // disabled={addPost.isLoading}
-            />
-            <br />
-            <input
-              className="my-2 rounded-full bg-white/10 p-2 px-4 font-semibold text-white no-underline transition hover:bg-white/20"
-              type="submit"
-              //  disabled={addPost.isLoading}
-            />
-            {/* {addPost.error && (
-              <p style={{ color: "red" }}>{addPost.error.message}</p>
-            )} */}
-          </form>
+              <br />
+              <label className="text-white" htmlFor="text">
+                Content:
+              </label>
+              <br />
+              <textarea
+                id="content"
+                name="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                disabled={addPost.isLoading}
+              />
+              <br />
+              <input
+                className="my-2 rounded-full bg-white/10 p-2 px-4 font-semibold text-white no-underline transition hover:bg-white/20"
+                type="submit"
+                disabled={addPost.isLoading}
+              />
+              {addPost.error && (
+                <p style={{ color: "red" }}>{addPost.error.message}</p>
+              )}
+            </form>
+          ) : (
+            <p className="text-2xl text-white">Please sign in to add a post</p>
+          )}
 
           <div className="my-4">
+            <h1 className="text-4xl text-white">Posts</h1>
             <pre className="text-2xl text-white">
               {posts.data
-                ? JSON.stringify(posts.data, null, 2)
+                ? posts.data.map((post) => (
+                    <div
+                      key={post.id}
+                      className="my-4 border-2 border-solid p-4"
+                    >
+                      <h2 className="mb-3 text-3xl font-bold">{post.title}</h2>
+                      <p className="text-base italic">{post.content}</p>
+                      <p className="mt-6 text-base font-semibold">
+                        By: {post.author.name}
+                      </p>
+                    </div>
+                  ))
                 : "Loading tRPC query..."}
             </pre>
           </div>
@@ -110,16 +124,10 @@ export default Home;
 const AuthShowcase: React.FC = () => {
   const { data: sessionData } = useSession();
 
-  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: sessionData?.user !== undefined }
-  );
-
   return (
     <div className="my-4">
       <p className="text-2xl text-white">
         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-        {secretMessage && <span> - {secretMessage}</span>}
       </p>
       <button
         className="my-4 rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
