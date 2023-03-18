@@ -1,10 +1,11 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import React from "react";
+import { type inferProcedureInput } from "@trpc/server";
+import { type AppRouter } from "~/server/api/root";
 
 const Home: NextPage = () => {
   const [title, setTitle] = React.useState("");
@@ -13,17 +14,29 @@ const Home: NextPage = () => {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
   const posts = api.posts.getPosts.useQuery();
 
-  // const addPost = api.posts.createPost.useMutation();
+  const addPost = api.posts.createPost.useMutation();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const newPost = {
-      title,
-      content,
+    const $form = event.currentTarget;
+    const values = Object.fromEntries(new FormData($form));
+    type Input = inferProcedureInput<AppRouter["posts"]["createPost"]>;
+
+    const input: Input = {
+      title: values.title as string,
+      content: values.content as string,
     };
 
-    console.log(newPost);
+    try {
+      await addPost.mutateAsync(input);
+
+      $form.reset();
+    } catch (cause) {
+      console.error({ cause }, "Failed to add post");
+    }
+
+    $form.reset();
   };
 
   return (
