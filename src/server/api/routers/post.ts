@@ -21,18 +21,13 @@ export const postsRouter = createTRPCRouter({
   getPost: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+        id: z.string(),
       })
     )
     .query(({ ctx, input }) => {
       return ctx.prisma.posts.findUnique({
         where: {
           id: input.id,
-        },
-        include: {
-          author: {
-            select: { name: true, id: true, image: true },
-          },
         },
       });
     }),

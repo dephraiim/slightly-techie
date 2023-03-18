@@ -3,9 +3,12 @@ import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import React from "react";
+import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
+
+  const router = useRouter();
 
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
@@ -118,7 +121,12 @@ const Home: NextPage = () => {
 
                         {post.author.id === sessionData?.user?.id && (
                           <div className="mt-4 flex gap-2">
-                            <p className="cursor-pointer text-sm underline ">
+                            <p
+                              className="cursor-pointer text-sm underline"
+                              onClick={() => {
+                                void router.push(`/edit/${post.id}`);
+                              }}
+                            >
                               Edit
                             </p>
                             <p
