@@ -105,9 +105,18 @@ const Home: NextPage = () => {
                     >
                       <h2 className="mb-3 text-3xl font-bold">{post.title}</h2>
                       <p className="text-base italic">{post.content}</p>
-                      <p className="mt-6 text-base font-semibold">
-                        By: {post.author.name}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="mt-6 text-base font-semibold">
+                          By: {post.author.name}
+                        </p>
+
+                        {post.author.id === sessionData?.user?.id && (
+                          <div className="mt-4 flex gap-2">
+                            <p className="text-sm underline">Edit</p>
+                            <p className="text-sm underline">Delete</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))
                 : "Loading tRPC query..."}
