@@ -26,6 +26,14 @@ const Home: NextPage = () => {
             </p>
             <AuthShowcase />
           </div>
+
+          {/* <div className="my-4">
+            <pre className="text-2xl text-white">
+              {posts.data
+                ? JSON.stringify(posts.data, null, 2)
+                : "Loading tRPC query..."}
+            </pre>
+          </div> */}
         </div>
       </main>
     </>
